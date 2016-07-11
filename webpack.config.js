@@ -4,20 +4,25 @@ var path = require('path');
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 
+var autoprefixer = require('autoprefixer');
+var csswring = require('csswring');
+
+
 module.exports = {
   devtool: 'eval-source-map',
   entry: [
     'webpack-hot-middleware/client?reload=true',
-    path.join(__dirname, 'app/main.js')
+    path.join(__dirname, 'client/vendor'),
+    path.join(__dirname, 'client/app')
   ],
   output: {
-    path: path.join(__dirname, '/dist/'),
+    path: path.join(__dirname, '/public/'),
     filename: '[name].js',
     publicPath: '/'
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: 'app/index.tpl.html',
+      template: 'client/templates/index.tpl.html',
       inject: 'body',
       filename: 'index.html'
     }),
@@ -28,20 +33,31 @@ module.exports = {
       'process.env.NODE_ENV': JSON.stringify('development')
     })
   ],
+  postcss: [autoprefixer],
   module: {
     loaders: [{
-      test: /\.jsx?$/,
+      test: /\.js?$/,
       exclude: /node_modules/,
       loader: 'babel',
       query: {
-        "presets": ["react", "es2015", "stage-0", "react-hmre"]
+        "presets": ["es2015"]
       }
     }, {
       test: /\.json?$/,
       loader: 'json'
-    }, {
+    },
+    {
       test: /\.css$/,
-      loader: 'style!css?modules&localIdentName=[name]---[local]---[hash:base64:5]'
-    }]
+      loader: 'style!css!postcss'
+    },
+    {
+        test: /\.html$/,
+        loader: 'html-loader'
+    },
+    {
+      test: /\.less$/,
+      loader: 'style!css!postcss!less'
+    }
+    ]
   }
 };

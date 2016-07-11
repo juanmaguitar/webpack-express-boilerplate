@@ -6,19 +6,23 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var StatsPlugin = require('stats-webpack-plugin');
 
+var autoprefixer = require('autoprefixer');
+var csswring = require('csswring');
+
 module.exports = {
-  entry: [
-    path.join(__dirname, 'app/main.js')
-  ],
+  entry: {
+    app: path.join(__dirname, 'client/app'),
+    vendor: path.join(__dirname, 'client/vendor')
+  },
   output: {
-    path: path.join(__dirname, '/dist/'),
+    path: path.join(__dirname, '/public/'),
     filename: '[name]-[hash].min.js',
     publicPath: '/'
   },
   plugins: [
     new webpack.optimize.OccurenceOrderPlugin(),
     new HtmlWebpackPlugin({
-      template: 'app/index.tpl.html',
+      template: 'client/templates/index.tpl.html',
       inject: 'body',
       filename: 'index.html'
     }),
@@ -39,21 +43,31 @@ module.exports = {
   ],
   module: {
     loaders: [{
-      test: /\.jsx?$/,
-      exclude: /node_modules/,
-      loader: 'babel',
-      query: {
-        "presets": ["es2015", "stage-0", "react"]
+        test: /\.js?$/,
+        exclude: /node_modules/,
+        loader: 'babel',
+        query: {
+          "presets": ["es2015"]
+        }
+      }, {
+        test: /\.json?$/,
+        loader: 'json'
+      }, {
+        test: /\.html$/,
+        loader: 'html-loader'
+      },
+      // {
+      //   test: /\.css$/,
+      //   loader: ExtractTextPlugin.extract('style', 'css?modules&localIdentName=[name]---[local]---[hash:base64:5]!postcss')
+      // }
+      {
+        test: /\.css$/,
+        loader: ExtractTextPlugin.extract('css?sourceMap!postcss-loader?sourceMap')
+      }, {
+        test: /\.less$/,
+        loader: ExtractTextPlugin.extract('css?sourceMap!postcss-loader?sourceMap!less?sourceMap')
       }
-    }, {
-      test: /\.json?$/,
-      loader: 'json'
-    }, {
-      test: /\.css$/,
-      loader: ExtractTextPlugin.extract('style', 'css?modules&localIdentName=[name]---[local]---[hash:base64:5]!postcss')
-    }]
+    ]
   },
-  postcss: [
-    require('autoprefixer')
-  ]
+  postcss: [autoprefixer, csswring]
 };
